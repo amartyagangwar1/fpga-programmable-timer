@@ -1,79 +1,49 @@
-This project implements a multi-mode programmable stopwatch/timer on the Digilent Basys3 FPGA board using Verilog RTL, a custom controller/datapath architecture, and a fully multiplexed 4-digit seven-segment display.
+# FPGA Programmable Timer / Stopwatch (Basys3, Verilog)
 
-The system supports four operating modes, including counting up, counting down, and loading custom preset values from the FPGA’s switch inputs. It is fully synthesizable and designed around clean modular components: clock divider, debounced inputs, controller FSM, time-keeping datapath, and seven-segment display driver.
+A four-mode programmable stopwatch/timer implemented in Verilog for the Digilent Basys3 FPGA board (Artix-7 XC7A35T). The design uses a modular RTL structure with a controller FSM, synchronous datapath, clock division, input synchronization, and a multiplexed four-digit seven-segment display.
 
-⭐ Features
+---
 
-4 modes of operation:
+## Features
 
-Mode 0: Count up from 00.00
+- **Mode 0:** Count up from `00.00`
+- **Mode 1:** Count down from `99.99`
+- **Mode 2:** Count up from preset seconds (loaded from switches)
+- **Mode 3:** Count down from preset seconds
+- 10ms resolution (00–99 hundredths of a second)
+- Start/Stop and Reset with synchronized inputs
+- Controller + datapath architecture
+- 4-digit seven-segment multiplexing
+- Preset loading via SW2–SW9 (0–9 per digit)
+- Synthesizable for Basys3 (100MHz clock)
 
-Mode 1: Count down from 99.99
+---
 
-Mode 2: Count up from externally loaded preset seconds
+## System Architecture
 
-Mode 3: Count down from externally loaded preset seconds
+### **Clock Divider**
+Generates a 10ms enable pulse from the 100MHz system clock.
 
-10ms resolution (hundreds counted 0–99 every second)
+### **Input Synchronizers**
+Two-FF synchronizers for Start/Stop and Reset to avoid metastability.
 
-Internal controller FSM for start/stop/reset logic
-
-Synchronous datapath for millisecond + second counting
-
-Button synchronizers for glitch-free operation
-
-4-digit seven-segment display multiplexed at high refresh
-
-Preset loading via switches (0–9 range for both digits)
-
-Works on Artix-7 XC7A35T (Basys3)
-
-🧩 System Architecture
-
-This design follows a structured RTL approach:
-
-1. Clock Divider
-
-Generates a stable 10ms tick from the 100MHz Basys3 clock.
-
-2. Button Synchronizers
-
-Two-stage flip-flop synchronizers for:
-
-Reset
-
-Start/Stop
-
-Prevents metastability and glitching.
-
-3. Controller FSM
-
-Implements:
-
-Start/Stop toggling
-
-Up/Down selection
-
-Zero/Max detection
-
-Reset behavior per mode
-
-Preset load logic
-
-4. Datapath
-
+### **Controller FSM**
 Handles:
+- start/stop control  
+- up/down direction  
+- zero/max detection  
+- mode logic  
+- preset load behavior  
 
-Milliseconds ones/tens
+### **Datapath**
+Maintains the timer values:
+- millisecond ones/tens  
+- second ones/tens  
+- up/down counting  
+- preset loading  
+- driven by the 10ms tick  
 
-Seconds ones/tens
+### **Display Multiplexer + Seven-Segment Encoder**
+Cycles through the four digits and converts BCD to segment outputs.
 
-Up/down counting
-
-Load preset values
-
-Count enable gating
-
-5. Display MUX + Seven-Segment Encoder
-
-Refreshes the four digits and encodes BCD→7-segment segments.
+---
